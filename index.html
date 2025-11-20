@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>AitralyzeX｜AI 交易回測與策略解讀引擎</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description"
+    content="AitralyzeX：次世代 AI 賦能的交易回測平台。讓你在電腦或手機上選股回測、建立策略，並透過 AI 解讀每一次交易的意義。" />
+
+  <style>
+    /* ===== Global Reset ===== */
+    *,
+    *::before,
+    *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC",
+        sans-serif;
+      background: radial-gradient(circle at top, #020617 0, #000 60%);
+      color: #e5e7eb;
+      line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    img {
+      max-width: 100%;
+      display: block;
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    :root {
+      --primary: #4ade80;
+      --primary-dark: #16a34a;
+      --primary-soft: rgba(74, 222, 128, 0.12);
+      --bg-dark: #020617;
+      --bg-card: #020617;
+      --border: #1e293b;
+      --text-muted: #94a3b8;
+      --radius: 18px;
+      --shadow: 0 20px 40px rgba(0, 0, 0, 0.55);
+    }
+
+    .container {
+      max-width: 1024px;
+      margin: 0 auto;
+      padding: 0 1.4rem;
+    }
+
+    section {
+      padding: 4.8rem 0;
+    }
+
+    /* ===== Animations (只保留淡入用) ===== */
+    .fade-in {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+
+    .fade-in.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ===== Navbar ===== */
+    header.navbar {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      backdrop-filter: blur(12px);
+      background: linear-gradient(to bottom,
+          rgba(2, 6, 23, 0.92),
+          rgba(2, 6, 23, 0.78));
+      border-bottom: 1px solid rgba(30, 64, 175, 0.4);
+    }
+
+    .navbar-inner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.7rem 1.4rem;
+      max-width: 1024px;
+      margin: auto;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .brand-logo-wrap {
+      position: relative;
+      width: 34px;
+      height: 34px;
+    }
+
+    .brand-logo {
+      width: 34px;
+      height: 34px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 30%, #bbf7d0, #4ade80);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.3);
+      color: #020617;
+      font-size: 0.8rem;
+      font-weight: 800;
+    }
+
+    .brand-glow-ring {
+      position: absolute;
+      inset: 0;
+      border-radius: 999px;
+      border: 2px solid rgba(74, 222, 128, 0.35);
+      pointer-events: none;
+    }
+
+    .brand-text-main {
+      font-weight: 700;
+      font-size: 1.02rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .brand-text-sub {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .nav-links {
+      display: none;
+      gap: 1.5rem;
+      align-items: center;
+      font-size: 0.9rem;
+    }
+
+    .nav-links a {
+      color: #cbd5e1;
+      position: relative;
+    }
+
+    .nav-links a::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: -0.2rem;
+      width: 0;
+      height: 1px;
+      background: linear-gradient(to right, #4ade80, #22c55e);
+      transition: width 0.2s ease;
+    }
+
+    .nav-links a:hover::after {
+      width: 100%;
+    }
+
+    .nav-cta {
+      padding: 0.4rem 1rem;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #4ade80, #16a34a);
+      color: #020617;
+      font-weight: 600;
+      box-shadow: var(--shadow);
+      font-size: 0.85rem;
+    }
+
+    .nav-cta:hover {
+      filter: brightness(1.05);
+    }
+
+    /* Mobile toggle */
+    .nav-toggle {
+      display: inline-flex;
+      flex-direction: column;
+      gap: 4px;
+      padding: 4px;
+      width: 30px;
+      height: 30px;
+      border: 1px solid rgba(51, 65, 85, 0.9);
+      border-radius: 9px;
+      cursor: pointer;
+      background: rgba(15, 23, 42, 0.9);
+    }
+
+    .nav-toggle span {
+      height: 2px;
+      width: 100%;
+      background: #cbd5e1;
+      border-radius: 4px;
+      transition: transform 0.2s ease, opacity 0.2s ease;
+    }
+
+    .nav-toggle.open span:nth-child(1) {
+      transform: translateY(3px) rotate(45deg);
+    }
+
+    .nav-toggle.open span:nth-child(2) {
+      opacity: 0;
+    }
+
+    .nav-toggle.open span:nth-child(3) {
+      transform: translateY(-3px) rotate(-45deg);
+    }
+
+    .nav-links-mobile {
+      display: none;
+      flex-direction: column;
+      padding: 0.9rem 1.4rem 1.2rem;
+      border-top: 1px solid var(--border);
+      background: rgba(2, 6, 23, 0.97);
+    }
+
+    .nav-links-mobile a {
+      padding: 0.4rem 0;
+      color: #cbd5e1;
+    }
+
+    .nav-links-mobile a:hover {
+      color: var(--primary);
+    }
+
+    @media (min-width: 768px) {
+      .nav-links {
+        display: flex;
+      }
+
+      .nav-toggle {
+        display: none;
+      }
+
+      .nav-links-mobile {
+        display: none !important;
+      }
+    }
+
+    /* ===== Hero ===== */
+    .hero {
+      padding-top: 3.2rem;
+    }
+
+    .hero-inner {
+      display: grid;
+      gap: 3.2rem;
+      position: relative;
+    }
+
+    @media (min-width: 900px) {
+      .hero-inner {
+        grid-template-columns: 1.35fr 1fr;
+      }
+    }
+
+    .hero-bg-orbit {
+      position: absolute;
+      inset: -80px -40px auto;
+      background: radial-gradient(circle at 10% 0, rgba(74, 222, 128, 0.14), transparent 55%),
+        radial-gradient(circle at 90% 10%, rgba(56, 189, 248, 0.12), transparent 55%);
+      opacity: 0.7;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .hero-kicker {
+      background: var(--primary-soft);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      padding: 0.22rem 0.7rem;
+      border-radius: 999px;
+      border: 1px solid rgba(74, 222, 128, 0.4);
+      font-size: 0.75rem;
+      color: var(--primary);
+      margin-bottom: 0.9rem;
+    }
+
+    .hero-kicker-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--primary);
+      box-shadow: 0 0 0 4px rgba(74, 222, 128, 0.3);
+    }
+
+    .hero-title {
+      font-size: 2.4rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      margin-bottom: 0.9rem;
+    }
+
+    @media (min-width: 768px) {
+      .hero-title {
+        font-size: 2.9rem;
+      }
+    }
+
+    .hero-highlight {
+      color: var(--primary);
+    }
+
+    .hero-subtitle {
+      font-size: 1.01rem;
+      margin-bottom: 1.7rem;
+      color: var(--text-muted);
+      max-width: 34rem;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.9rem;
+      align-items: center;
+    }
+
+    .btn-primary {
+      padding: 0.75rem 1.7rem;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #4ade80, #16a34a);
+      border: none;
+      color: #020617;
+      font-weight: 700;
+      font-size: 0.96rem;
+      cursor: pointer;
+      box-shadow: var(--shadow);
+    }
+
+    .btn-primary:hover {
+      filter: brightness(1.06);
+    }
+
+    .btn-ghost {
+      padding: 0.75rem 1.2rem;
+      border-radius: 999px;
+      border: 1px solid rgba(75, 85, 99, 0.9);
+      background: rgba(15, 23, 42, 0.95);
+      color: #e5e7eb;
+      cursor: pointer;
+      font-size: 0.92rem;
+    }
+
+    .btn-ghost:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .hero-note {
+      margin-top: 0.7rem;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .hero-note strong {
+      color: #e5e7eb;
+      font-weight: 600;
+    }
+
+    /* Hero Right Panel */
+    .hero-card {
+      background: radial-gradient(circle at top, #020617, #020617 70%);
+      border: 1px solid rgba(30, 64, 175, 0.45);
+      border-radius: 24px;
+      padding: 1.6rem 1.5rem;
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-orbit {
+      position: absolute;
+      inset: -80px;
+      background: radial-gradient(circle at 80% 0, rgba(52, 211, 153, 0.1), transparent 60%);
+      opacity: 0.8;
+      pointer-events: none;
+    }
+
+    .hero-card-title {
+      font-size: 0.8rem;
+      color: var(--primary);
+      letter-spacing: 0.12em;
+      margin-bottom: 0.7rem;
+      text-transform: uppercase;
+    }
+
+    .hero-metric {
+      background: rgba(15, 23, 42, 0.95);
+      padding: 1rem;
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      margin-bottom: 1rem;
+    }
+
+    .metric-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.45rem;
+      font-size: 0.86rem;
+    }
+
+    .metric-row span:last-child {
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    .metric-row:last-child {
+      margin-bottom: 0;
+    }
+
+    .hero-tagline {
+      margin-top: 0.6rem;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    /* ===== Section Headers ===== */
+    .section-header {
+      margin-bottom: 2.4rem;
+    }
+
+    .section-eyebrow {
+      color: var(--primary);
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      font-size: 0.8rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .section-title {
+      font-size: 1.55rem;
+      font-weight: 750;
+      margin-bottom: 0.5rem;
+    }
+
+    .section-subtitle {
+      color: var(--text-muted);
+      max-width: 32rem;
+      font-size: 0.95rem;
+    }
+
+    /* ===== Team (About) ===== */
+    .team-grid {
+      display: grid;
+      gap: 1.2rem;
+    }
+
+    @media (min-width: 768px) {
+      .team-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+    }
+
+    .team-card {
+      background: var(--bg-card);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      padding: 1.3rem 1.1rem 1.4rem;
+      box-shadow: 0 16px 28px rgba(0, 0, 0, 0.55);
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .team-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at top, rgba(74, 222, 128, 0.1), transparent 55%);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      pointer-events: none;
+    }
+
+    .team-card:hover::before {
+      opacity: 1;
+    }
+
+    /* ===== Team Avatar: Larger + Premium Look ===== */
+    .team-avatar-wrap {
+      width: 150px;
+      height: 150px;
+      margin: 0 auto 1rem;
+      border-radius: 999px;
+      padding: 3px;
+      background: conic-gradient(from 140deg,
+          rgba(74, 222, 128, 0.1),
+          rgba(59, 130, 246, 0.55),
+          rgba(45, 212, 191, 0.8),
+          rgba(74, 222, 128, 0.1));
+      position: relative;
+      box-shadow: 0 18px 35px rgba(0, 0, 0, 0.85);
+      overflow: visible;
+      transition: transform 0.22s ease, box-shadow 0.22s ease;
+    }
+
+    .team-card:hover .team-avatar-wrap {
+      transform: translateY(-3px) scale(1.02);
+      box-shadow: 0 22px 45px rgba(0, 0, 0, 0.95);
+    }
+
+    .team-avatar {
+      width: 100%;
+      height: 100%;
+      border-radius: inherit;
+      object-fit: cover;
+      border: 2px solid #020617;
+      background: radial-gradient(circle at 30% 30%, #1f2937, #020617);
+      position: relative;
+      z-index: 2;
+    }
+
+    .team-avatar-glow {
+      position: absolute;
+      inset: 16px;
+      border-radius: 999px;
+      background: radial-gradient(circle, rgba(94, 234, 212, 0.26), transparent 60%);
+      filter: blur(14px);
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .team-name {
+      font-weight: 650;
+      margin-bottom: 0.2rem;
+      font-size: 0.98rem;
+    }
+
+    .team-role {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 0.6rem;
+    }
+
+    .team-text {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      margin-bottom: 0.7rem;
+    }
+
+    .team-link {
+      font-size: 0.82rem;
+      color: var(--primary);
+    }
+
+    .team-link:hover {
+      color: var(--primary-dark);
+      text-decoration: underline;
+    }
+
+    /* ===== Feature Cards ===== */
+    .feature-grid {
+      display: grid;
+      gap: 1.2rem;
+    }
+
+    @media (min-width: 768px) {
+      .feature-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    .feature-card {
+      background: #020617;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      padding: 1.4rem;
+      box-shadow: 0 16px 30px rgba(0, 0, 0, 0.55);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .feature-card::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom right,
+          rgba(74, 222, 128, 0.09),
+          transparent 40%);
+      opacity: 0;
+      transition: opacity 0.25s ease;
+      pointer-events: none;
+    }
+
+    .feature-card:hover::after {
+      opacity: 1;
+    }
+
+    .feature-title {
+      font-size: 1.05rem;
+      margin-bottom: 0.55rem;
+      font-weight: 650;
+    }
+
+    .feature-text {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    /* ===== Demo ===== */
+    .demo-card {
+      background: #020617;
+      border-radius: 22px;
+      border: 1px solid var(--border);
+      padding: 1.6rem 1.5rem;
+      box-shadow: var(--shadow);
+      display: grid;
+      gap: 1.2rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .demo-card::before {
+      content: "";
+      position: absolute;
+      inset: -40px;
+      background: radial-gradient(circle at 0 0, rgba(74, 222, 128, 0.15), transparent 65%);
+      opacity: 0.6;
+      pointer-events: none;
+    }
+
+    @media (min-width: 768px) {
+      .demo-card {
+        grid-template-columns: 1.1fr 1fr;
+      }
+    }
+
+    .demo-media {
+      border-radius: 18px;
+      border: 1px dashed rgba(55, 65, 81, 0.9);
+      background: radial-gradient(circle at top, #020617, #020617 70%);
+      min-height: 180px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      text-align: center;
+      padding: 1rem;
+    }
+
+    .demo-text {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      margin-bottom: 0.9rem;
+    }
+
+    .demo-btn {
+      padding: 0.6rem 1.3rem;
+      border-radius: 999px;
+      border: 1px solid var(--primary);
+      background: transparent;
+      color: var(--primary);
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
+
+    .demo-btn:hover {
+      background: var(--primary-soft);
+    }
+
+    /* ===== Contact / Early Access ===== */
+    .contact-card {
+      background: #020617;
+      border: 1px solid var(--border);
+      padding: 1.8rem 1.6rem;
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+      max-width: 600px;
+      margin: auto;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .contact-card::before {
+      content: "";
+      position: absolute;
+      inset: -50px;
+      background: radial-gradient(circle at 100% 0, rgba(59, 130, 246, 0.17), transparent 60%);
+      opacity: 0.8;
+      pointer-events: none;
+    }
+
+    .contact-text {
+      margin-bottom: 1rem;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .contact-email {
+      margin-bottom: 0.4rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .contact-email strong {
+      color: var(--primary);
+    }
+
+    /* ===== Footer ===== */
+    footer {
+      padding: 2.5rem 0;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.82rem;
+      border-top: 1px solid var(--border);
+      margin-top: 1rem;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Navbar -->
+  <header class="navbar">
+    <div class="navbar-inner">
+      <a class="brand" href="#top">
+        <div class="brand-logo-wrap">
+          <div class="brand-logo">X</div>
+          <div class="brand-glow-ring"></div>
+        </div>
+        <div>
+          <div class="brand-text-main">AitralyzeX</div>
+          <div class="brand-text-sub">AI TRADING ANALYSIS ENGINE</div>
+        </div>
+      </a>
+
+      <nav class="nav-links">
+        <a href="#about">關於我們</a>
+        <a href="#features">特色</a>
+        <a href="#demo">Demo</a>
+        <a href="#contact" class="nav-cta">參與 AitralyzeX 內測</a>
+      </nav>
+
+      <div class="nav-toggle" id="navToggle">
+        <span></span><span></span><span></span>
+      </div>
+    </div>
+
+      <nav class="nav-links-mobile" id="navMobile">
+        <a href="#about">關於我們</a>
+        <a href="#features">特色</a>
+        <a href="#demo">Demo</a>
+        <a href="#contact">參與 AitralyzeX 內測</a>
+      </nav>
+  </header>
+
+  <!-- Hero -->
+  <section class="hero" id="top">
+    <div class="hero-bg-orbit"></div>
+    <div class="container hero-inner">
+      <div class="fade-in" data-animate>
+        <div class="hero-kicker">
+          <span class="hero-kicker-dot"></span>
+          AI-Augmented Trading Engine
+        </div>
+
+        <h1 class="hero-title">
+          用 <span class="hero-highlight">AitralyzeX</span>
+          看懂每一個策略的邏輯與風險。
+        </h1>
+
+        <p class="hero-subtitle">
+          AitralyzeX 是一個結合回測、交易分析與 AI 解讀功能的次世代平台。
+          在手機或電腦上，就能快速選股、配置策略、回測歷史績效，並讓 AI
+          用白話方式解釋每一次交易決策背後的原因。
+        </p>
+
+        <div class="hero-actions">
+          <a href="#contact"><button class="btn-primary">我要參與內測</button></a>
+          <a href="#features"><button class="btn-ghost">看看能做什麼</button></a>
+        </div>
+
+        <p class="hero-note">
+          初期以台股與簡單技術策略為主，聚焦在
+          <strong>「回測結果」如何轉化為「可理解的交易故事」</strong>。
+        </p>
+      </div>
+
+      <aside class="hero-card fade-in" data-animate>
+        <div class="hero-orbit"></div>
+        <div class="hero-card-title">回測概覽（示意）</div>
+
+        <div class="hero-metric">
+          <div class="metric-row">
+            <span>股票</span>
+            <span>1101 台泥</span>
+          </div>
+          <div class="metric-row">
+            <span>策略名稱</span>
+            <span>Bollinger 超賣策略</span>
+          </div>
+          <div class="metric-row">
+            <span>初始資金</span>
+            <span>100,000 元</span>
+          </div>
+        </div>
+
+        <div class="hero-metric">
+          <div class="metric-row">
+            <span>總報酬率</span>
+            <span>-0.55%</span>
+          </div>
+          <div class="metric-row">
+            <span>買入持有報酬率</span>
+            <span>-3.45%</span>
+          </div>
+          <div class="metric-row">
+            <span>策略超額報酬</span>
+            <span>+12.16%</span>
+          </div>
+        </div>
+
+        <p class="hero-tagline">
+          ※ 數字為示意，實際結果依資料期間、交易成本與策略設定而定。
+        </p>
+      </aside>
+    </div>
+  </section>
+
+  <!-- About -->
+  <section id="about">
+    <div class="container fade-in" data-animate>
+      <div class="section-header">
+        <p class="section-eyebrow">ABOUT</p>
+        <h2 class="section-title">關於我們</h2>
+        <!-- 這裡原本的 section-subtitle 已移除 -->
+      </div>
+
+      <div class="team-grid">
+        <!-- 成員 1：你自己 -->
+        <article class="team-card">
+          <div class="team-avatar-wrap">
+            <div class="team-avatar-glow"></div>
+            <img src="profile1.jpg" alt="Carol Kao" class="team-avatar" />
+          </div>
+          <h3 class="team-name">高佳煒</h3>
+          <p class="team-role">Quant Research &amp; Data Engineering</p>
+          <p class="team-text">
+            專精於回測架構、金融效率分析與資料處理，負責 AitralyzeX 的研究設計與資料端實作，
+            讓工具兼具「學術扎實」與「實務可用」。
+          </p>
+          <a class="team-link" href="https://carolkao-fin.github.io/" target="_blank" rel="noopener">
+            查看個人 GitHub →
+          </a>
+        </article>
+
+        <!-- 成員 2（預留） -->
+        <article class="team-card">
+          <div class="team-avatar-wrap">
+            <div class="team-avatar-glow"></div>
+            <img src="profile2.jpg" alt="Team Member 2" class="team-avatar" />
+          </div>
+          <h3 class="team-name">謝禮雋</h3>
+          <p class="team-role">Frontend &amp; UI/UX</p>
+          <p class="team-text">
+            專責介面設計與互動體驗，讓使用者在桌機與手機上，都能直覺地完成選股、回測與瀏覽 Demo。
+          </p>
+          <a class="team-link" href="#" target="_blank" rel="noopener">
+            GitHub（預留） →
+          </a>
+        </article>
+
+        <!-- 成員 3（預留） -->
+        <article class="team-card">
+          <div class="team-avatar-wrap">
+            <div class="team-avatar-glow"></div>
+            <img src="profile3.jpg" alt="Team Member 3" class="team-avatar" />
+          </div>
+          <h3 class="team-name">李旻儒</h3>
+          <p class="team-role">Backend &amp; Infrastructure</p>
+          <p class="team-text">
+            規劃回測引擎、資料儲存與 API 串接，確保策略分析能穩定、快速且可擴充地運作，
+            支援未來更多市場與商品。
+          </p>
+          <a class="team-link" href="#" target="_blank" rel="noopener">
+            GitHub（預留） →
+          </a>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section id="features">
+    <div class="container fade-in" data-animate>
+      <div class="section-header">
+        <p class="section-eyebrow">FEATURES</p>
+        <h2 class="section-title">核心特色</h2>
+        <p class="section-subtitle">
+          AitralyzeX 聚焦於「快速驗證交易想法」，並用 AI
+          解釋策略的本質與風險，讓回測結果不只是幾行數字。
+        </p>
+      </div>
+
+      <div class="feature-grid">
+        <div class="feature-card">
+          <h3 class="feature-title">📈 一鍵回測</h3>
+          <p class="feature-text">
+            輸入股票代碼、策略類型與期間，AitralyzeX 自動產生報酬、風險指標與簡單圖表，
+            讓你快速驗證直覺，而不是只憑感覺下單。
+          </p>
+        </div>
+
+        <div class="feature-card">
+          <h3 class="feature-title">🧠 AI 策略解讀</h3>
+          <p class="feature-text">
+            最大回撤？觸發條件？適合誰？AitralyzeX 用自然語言說明策略邏輯，
+            把數字翻譯成真正聽得懂的「交易故事」。
+          </p>
+        </div>
+
+        <div class="feature-card">
+          <h3 class="feature-title">🔍 技術指標模組化</h3>
+          <p class="feature-text">
+            MA、突破、RSI… 後續可自由組合成策略模組，從簡單規則出發，
+            漸進式發展成更完整的量化策略框架。
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Demo -->
+  <section id="demo">
+    <div class="container fade-in" data-animate>
+      <div class="section-header">
+        <p class="section-eyebrow">DEMO</p>
+        <h2 class="section-title">AitralyzeX Demo（示意）</h2>
+        <!-- 這裡原本的 Demo 說明 subtitle 已移除 -->
+      </div>
+
+      <div class="demo-card">
+        <div class="demo-media">
+          未來可放：<br />
+          ・回測操作介面截圖<br />
+          ・實際跑回測的 GIF 動畫<br />
+          ・或嵌入互動圖表（例如 TradingView / 自製前端）
+        </div>
+        <div>
+          <p class="demo-text">
+            Demo 的目標是讓使用者能：
+            <br />1. 輸入股票代碼與回測期間
+            <br />2. 選擇策略模組（例如均線、突破、定期定額）
+            <br />3. 一鍵執行回測，看到績效曲線與關鍵指標
+            <br />4. 直接詢問 AI：「幫我解釋這個策略適合什麼樣的投資人？」
+          </p>
+          <p class="demo-text">
+            在之後的版本中，也可以加入：
+            <br />・不同策略間的績效比較
+            <br />・將真實持股或對帳單上傳給 AI，請它協助分析風險暴露
+            <br />・教學模式：用簡化案例帶使用者理解每一步設定。
+          </p>
+          <button class="demo-btn" type="button">
+            Demo 連結（Coming soon）
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact / Early Access -->
+  <section id="contact">
+    <div class="container fade-in" data-animate>
+      <div class="section-header">
+        <p class="section-eyebrow">EARLY ACCESS</p>
+        <h2 class="section-title">參與 AitralyzeX 內測</h2>
+        <p class="section-subtitle">
+          若你對「回測 + AI 解讀」有興趣，或希望在研究 / 教學 / 實務上使用這類工具，
+          歡迎透過 Email 與我們聯繫。測試版開放時，會優先通知你。
+        </p>
+      </div>
+
+      <div class="contact-card">
+        <p class="contact-text">
+          AitralyzeX 仍在開發中。我們希望透過小規模內測，收集實際使用情境與回饋，
+          一起把這個工具打磨成對投資人與研究者都實用的研究夥伴。
+        </p>
+
+        <p class="contact-email">
+          <strong>Email：</strong>
+          AitralyzeX@gmail.com
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    © <span id="year"></span> AitralyzeX — AI-Augmented Trading Analysis Engine.
+  </footer>
+
+  <script>
+    // 年份
+    document.getElementById("year").textContent = new Date().getFullYear();
+
+    // 手機選單
+    const navToggle = document.getElementById("navToggle");
+    const navMobile = document.getElementById("navMobile");
+
+    navToggle.addEventListener("click", () => {
+      const open = navMobile.style.display === "flex";
+      navMobile.style.display = open ? "none" : "flex";
+      navToggle.classList.toggle("open", !open);
+    });
+
+    navMobile.querySelectorAll("a").forEach((link) =>
+      link.addEventListener("click", () => {
+        navMobile.style.display = "none";
+        navToggle.classList.remove("open");
+      })
+    );
+
+    // 滾動淡入動畫
+    const animated = document.querySelectorAll("[data-animate]");
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("show");
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.15 }
+    );
+
+    animated.forEach((el) => observer.observe(el));
+  </script>
+
+</body>
+
+</html>

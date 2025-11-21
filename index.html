@@ -600,6 +600,108 @@
       font-size: 0.9rem;
     }
 
+    /* ===== Pricing ===== */
+    .pricing-grid {
+      display: grid;
+      gap: 1.4rem;
+    }
+
+    @media (min-width: 768px) {
+      .pricing-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    .pricing-card {
+      background: #020617;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      padding: 2.1rem 1.6rem 2rem;
+      text-align: center;
+      box-shadow: 0 16px 30px rgba(0, 0, 0, 0.55);
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+    }
+
+    .pricing-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 22px 45px rgba(0, 0, 0, 0.85);
+      border-color: rgba(74, 222, 128, 0.45);
+    }
+
+    .pricing-popular {
+      border-color: rgba(74, 222, 128, 0.7);
+    }
+
+    .pricing-badge {
+      position: absolute;
+      top: 14px;
+      right: 16px;
+      padding: 0.18rem 0.7rem;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      background: var(--primary-soft);
+      color: var(--primary);
+      border: 1px solid rgba(74, 222, 128, 0.5);
+    }
+
+    .pricing-icon {
+      width: 120px;
+      height: 120px;
+      margin: 0 auto 1.4rem;
+      border-radius: 999px;
+      border: 6px solid #0f4f6b;
+      background: radial-gradient(circle at 30% 30%, #0ea5e9, #075985);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 1.1rem;
+      letter-spacing: 0.16em;
+      color: #e5f2ff;
+      box-shadow: 0 16px 32px rgba(0, 0, 0, 0.75);
+    }
+
+    .pricing-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 0.3rem;
+    }
+
+    .pricing-price {
+      font-size: 1.05rem;
+      font-weight: 650;
+      margin-bottom: 1.1rem;
+      color: var(--primary);
+    }
+
+    .pricing-list {
+      list-style: none;
+      font-size: 0.92rem;
+      color: var(--text-muted);
+      line-height: 1.7;
+      text-align: left;
+      max-width: 16rem;
+      margin: 0 auto;
+    }
+
+    .pricing-list li {
+      position: relative;
+      padding-left: 1.1rem;
+      margin-bottom: 0.35rem;
+    }
+
+    .pricing-list li::before {
+      content: "•";
+      position: absolute;
+      left: 0;
+      top: 0;
+      color: var(--primary);
+    }
+
     /* ===== Demo ===== */
     .demo-card {
       background: #020617;
@@ -733,6 +835,7 @@
       <nav class="nav-links">
         <a href="#about">關於我們</a>
         <a href="#features">特色</a>
+        <a href="#pricing">定價</a>
         <a href="#demo">Demo</a>
         <a href="#contact" class="nav-cta">參與 AitralyzeX 內測</a>
       </nav>
@@ -745,6 +848,7 @@
     <nav class="nav-links-mobile" id="navMobile">
       <a href="#about">關於我們</a>
       <a href="#features">特色</a>
+      <a href="#pricing">定價</a>
       <a href="#demo">Demo</a>
       <a href="#contact">參與 AitralyzeX 內測</a>
     </nav>
@@ -867,7 +971,7 @@
           <h3 class="team-name">李旻儒</h3>
           <p class="team-role">產品設計規劃</p>
           <a class="team-link" href="https://pleeminru.github.io/" target="_blank" rel="noopener">
-             查看個人 GitHub →
+            查看個人 GitHub →
           </a>
         </article>
       </div>
@@ -914,6 +1018,59 @@
     </div>
   </section>
 
+  <!-- Pricing -->
+  <section id="pricing">
+    <div class="container fade-in" data-animate>
+      <div class="section-header">
+        <p class="section-eyebrow">PRICING</p>
+        <h2 class="section-title">定價方案</h2>
+        <p class="section-subtitle">
+          從入門學習到進階研究，都有對應的方案可以搭配你的交易旅程。
+        </p>
+      </div>
+
+      <div class="pricing-grid">
+        <!-- Free -->
+        <div class="pricing-card">
+          <div class="pricing-icon">FREE</div>
+          <h3 class="pricing-title">免費版</h3>
+          <p class="pricing-price">NT$0 / 月</p>
+          <ul class="pricing-list">
+            <li>單策略、單股票</li>
+            <li>簡易回測結果</li>
+            <li>AI 解讀試用（有限次數）</li>
+          </ul>
+        </div>
+
+        <!-- Pro -->
+        <div class="pricing-card pricing-popular">
+          <div class="pricing-badge">推薦</div>
+          <div class="pricing-icon">PRO</div>
+          <h3 class="pricing-title">Pro</h3>
+          <p class="pricing-price">NT$99 / 月</p>
+          <ul class="pricing-list">
+            <li>全股票</li>
+            <li>全策略</li>
+            <li>AI 深度解讀（不限次數）</li>
+            <li>回測結果下載與匯出</li>
+          </ul>
+        </div>
+
+        <!-- Premium -->
+        <div class="pricing-card">
+          <div class="pricing-icon">★</div>
+          <h3 class="pricing-title">Premium</h3>
+          <p class="pricing-price">NT$199–299 / 月</p>
+          <ul class="pricing-list">
+            <li>多策略比較與情境分析</li>
+            <li>自訂策略模組與參數</li>
+            <li>高速計算（適合大量回測）</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- Demo -->
   <section id="demo">
     <div class="container fade-in" data-animate>
@@ -942,12 +1099,8 @@
             <br />・教學模式：用簡化案例帶使用者理解每一步設定。
           </p>
 
-          <a
-            class="demo-btn"
-            href="https://backtestsystempy-wxslw5ksavzansjnsjsez4.streamlit.app/"
-            target="_blank"
-            rel="noopener"
-          >
+          <a class="demo-btn" href="https://backtestsystempy-wxslw5ksavzansjnsjsez4.streamlit.app/" target="_blank"
+            rel="noopener">
             前往線上 Demo（Streamlit）
           </a>
         </div>
